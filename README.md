@@ -1,21 +1,18 @@
 # FreeCAD Docker Image
 
-An up-to-date docker image intended to act as a build and run environment for
-FreeCAD based on David Daish's original [FreeCAD docker image](https://gitlab.com/daviddaish/freecad_docker_env).
+An up-to-date docker image with the required environment to build and run FreeCAD. Based on David Daish's original [FreeCAD docker image](https://gitlab.com/daviddaish/freecad_docker_env).
 
-The directories containing FreeCAD's source code and build are not included
-inside the docker image. Instead, they are attached to the docker container
-when you run the container. This allows the built code to have continuity
-across different docker containers, reducing the time for a build to occur, and
-allowing you to use your own editor/IDE outside of the container.
+The FreeCAD source code and build are ***not*** included in the docker image. You must download or clone the repo. The project files will be attached to the docker container when you run the container. This allows the built code to have continuity across different docker containers, reducing the time for a build to occur, and allowing you to use your own editor/IDE outside of the container.
 
-## Image use
+## Image Setup
 
 ### Pull image
 
-```sh
+Coming Soon
+
+<!-- ```sh
 docker pull registry.gitlab.com/daviddaish/freecad_docker_env:latest
-```
+``` -->
 
 ### Run image
 
@@ -33,32 +30,48 @@ Allow local xhost access, so you can use the GUI.
 xhost +local:
 ```
 
-Using enviroment variables, specify:
+You must specify the following enviroment variables before running the docker image:
 
-- The root directory of the FreeCAD source;
-- Where to build FreeCAD;
-- A directory containing any other files you'd like to use, such as
-  `.fcstd` files, for testing.
+Env Variable | Default | Description | Location in container
+--- | --- | --- | ---
+FREECAD_SOURCE | ~/Code/FreeCAD | The root directory of the FreeCAD source code, basically where you have cloned the FreeCAD GitHub repo | `/mnt/source`
+FREECAD_BUILD | ~/Code/FreeCAD_build | Output directory for the FreeCAD build | `/mnt/build`
+MISC_FILES | ~/Code/FreeCAD/other | A custom directory containing any other files you'd like to use, such as `.fcstd` files, for testing | `/mnt/files`
+
+You can directly set the values in your environment like this:
 
 ```sh
-fc_source=~/code/freecad_source
-fc_build=~/code/freecad_build
-other_files=~/
+FREECAD_SOURCE=~/code/freecad_source
+FREECAD_BUILD=~/code/freecad_build
+MISC_FILES=~/
 ```
 
-Run the docker image.
+Or update the `init.sh` script with your custom values and then run `. ./init.sh`.
+
+After setting up the environment, run the docker image.
 
 ```sh
 docker run -it --rm \
--v $fc_source:/mnt/source \
--v $fc_build:/mnt/build \
--v $other_files:/mnt/files \
+-v $FREECAD_SOURCE:/mnt/source \
+-v $FREECAD_BUILD:/mnt/build \
+-v $MISC_FILES:/mnt/files \
 -e "DISPLAY" -e "QT_X11_NO_MITSHM=1" -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-registry.gitlab.com/daviddaish/freecad_docker_env:latest
+bombillazo/freecad_docker:latest
 ```
 
-You will be able to find the mounted directories within the container in the
-`/mnt` directory, named `/mnt/source`, `/mnt/build`, and `/mnt/files`.
+<!-- 
+```sh
+docker run -it --rm \
+-v $FREECAD_SOURCE:/mnt/source \
+-v $FREECAD_BUILD:/mnt/build \
+-v $MISC_FILES:/mnt/files \
+-e "DISPLAY" -e "QT_X11_NO_MITSHM=1" -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
+registry.gitlab.com/daviddaish/freecad_docker_env:latest
+``` -->
+
+## FreeCAD Setup
+
+Once your image is running, connect to the image via your terminal or from the Docker terminal. Once inside the image you can run commands to build and run FreeCAD.
 
 ### Build FreeCAD
 
@@ -72,17 +85,15 @@ You will be able to find the mounted directories within the container in the
 /mnt/build/bin/FreeCAD
 ```
 
-## Developing the image
+## Building the image
 
-### Build docker image
-
-Building the docker image will take several hours.
+Build times for the docker image will depend on your machine's specification and network.
 
 ```sh
-docker build -t registry.gitlab.com/daviddaish/freecad_docker_env:latest .
+docker build -t bombillazo/freecad_docker:latest .
 ```
 
-Note that, because of the size of the dependancies, docker may throw a `no
+Note that, because of the size of the dependencies, docker may throw a `no
 space left on device` error part way through the build. To reduce the
 likelyhood of this, ensure you have around 25GB of space on your storage, and
 running `docker system prune`.
