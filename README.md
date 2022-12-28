@@ -11,8 +11,6 @@ allowing you to use your own editor/IDE outside of the container.
 
 ## Image use
 
----
-
 ### Pull image
 
 ```sh
@@ -75,8 +73,6 @@ You will be able to find the mounted directories within the container in the
 ```
 
 ## Developing the image
-
----
 
 ### Build docker image
 
